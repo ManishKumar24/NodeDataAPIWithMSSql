@@ -62,8 +62,8 @@ var router = express.Router();
 function handleError(res, reason, message, code) {
     console.log("ERROR: " + reason);
     res.status(code || 500).json({ "error": message });
+    next();
 }
-
 
 //var BudgetForeCast = require('./models/budgetforecast');
 router.use(function (req, res, next) {
@@ -82,13 +82,13 @@ router.use(function (req, res, next) {
 // Create a budgetforecast row (accessed at POST http://localhost:8080/api/budgetforecast/create)
 router.route('/budgetforecast/create')
     .post(function (req, res) {
-        var query = "INSERT INTO [budgetforecast].[fact_budgetforecasts] (station_call_letters,year,month,pricing_budget_group,budget_update_date,forecast_date,budget_amount,forecast_amount) "
-        " VALUES (" + req.body.station_call_letters + " , " +
+        var query = " INSERT INTO [budgetforecast].[fact_budgetforecasts] (BudgetForecasts_key,station_call_letters,year,month,pricing_budget_group,budget_update_date,forecast_date,budget_amount,forecast_amount) " +
+        " VALUES ((SELECT max(BudgetForecasts_key) + 1 FROM [budgetforecast].[fact_budgetforecasts]),'" + req.body.station_call_letters + "' , " +
             req.body.year + " , " +
-            req.body.month + " , " +
-            req.body.pricing_budget_group + " , " +
-            req.body.budget_update_date + " , " +
-            req.body.forecast_date + " , " +
+            req.body.month + " , '" +
+            req.body.pricing_budget_group + "' , '" +
+            req.body.budget_update_date + "' , '" +
+            req.body.forecast_date + "' , " +
             req.body.budget_amount + " , " +
             req.body.forecast_amount + ");"
         executeQuery(res, query, 'POST');
@@ -120,14 +120,14 @@ router.route('/budgetforecast/:budgetforecastid')
 router.route('/budgetforecast/update/:budgetforecastid')
     .put(function (req, res) {
         var query = "UPDATE [budgetforecast].[fact_budgetforecasts] " +
-            "SET station_call_letters= " + req.body.station_call_letters +
-            ", year=  " + req.body.year +
+            "SET station_call_letters= '" + req.body.station_call_letters +
+            "' , year=  " + req.body.year +
             ", month = " + req.body.month +
-            ", pricing_budget_group = " + req.body.pricing_budget_group +
-            ", budget_update_date = " + req.body.budget_update_date +
-            ", budget_amount = " + req.body.budget_amount +
-            ", forecast_date = " + req.body.forecast_date +
-            ", forecast_amount = " + req.body.forecast_amount +
+            ", pricing_budget_group = '" + req.body.pricing_budget_group +
+            "', budget_update_date = '" + req.body.budget_update_date +
+            "', budget_amount = " + req.body.budget_amount +
+            ", forecast_date = '" + req.body.forecast_date +
+            "', forecast_amount = " + req.body.forecast_amount +
             " WHERE BudgetForecasts_key=" + req.params.budgetforecastid;
         executeQuery(res, query, 'PUT');
     });
@@ -139,7 +139,7 @@ router.get('/', function (req, res) {
 
 app.use('/api', router);
 
-app.use(function (req, res) {
+app.use(function (error, req, res, next) {
     console.log(chalk.red("Error: 404"));
     res.status(404).render('404');
     next();

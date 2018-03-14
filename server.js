@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(function (req, res, next) {
     //Enabling CORS 
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, contentType,Content-Type, Accept, Authorization");
     res.header("content-type: application/json");
     next();
@@ -46,7 +46,7 @@ var executeQuery = function (res, query, requesttype) {
                     }
                 case 'DELETE':
                     {
-                        res.status(204).send(rs.rowsAffected);
+                        res.status(200).send(rs.rowsAffected);
                     }
                 case 'PUT':
                     {
@@ -105,14 +105,14 @@ router.route('/budgetforecast/delete/:budgetforecastid')
 // Get All BudgetForeCast rows (accessed at GET http://localhost:8080/api/budgetforecasts)
 router.route('/budgetforecasts')
     .get(function (req, res) {
-        var query = "SELECT  BudgetForecasts_key,station_call_letters,year,month,pricing_budget_group,budget_update_date,forecast_date,budget_amount,forecast_amount FROM [budgetforecast].[fact_budgetforecasts]"
+        var query = "SELECT BudgetForecasts_key,station_call_letters,year,month,pricing_budget_group,convert(varchar(10),budget_update_date,101) as budget_update_date,convert(varchar(10),forecast_date,101) AS forecast_date,budget_amount,forecast_amount FROM [budgetforecast].[fact_budgetforecasts] "
         executeQuery(res, query, 'GET');
     });
 
 // Find BudgetForecast row by id (accessed at GET http://localhost:8080/api/budgetforecast/:budgetforecastid)
 router.route('/budgetforecast/:budgetforecastid')
     .get(function (req, res) {
-        var query = "SELECT BudgetForecasts_key,station_call_letters,year,month,pricing_budget_group,budget_update_date,forecast_date,budget_amount,forecast_amount FROM [budgetforecast].[fact_budgetforecasts] WHERE BudgetForecasts_key=" + req.params.budgetforecastid;
+        var query = "SELECT BudgetForecasts_key,station_call_letters,year,month,pricing_budget_group,convert(varchar(10),budget_update_date,101) as budget_update_date,convert(varchar(10),forecast_date,101) AS forecast_date,budget_amount,forecast_amount FROM [budgetforecast].[fact_budgetforecasts] WHERE BudgetForecasts_key=" + req.params.budgetforecastid;
         executeQuery(res, query, 'GET');
     });
 
